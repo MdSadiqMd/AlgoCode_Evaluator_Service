@@ -11,8 +11,12 @@ class sampleJob implements IJob {
         this.payload = payload;
     }
 
-    handle = () => {
+    handle = (job?: Job) => {
         logger.info('Job Handler');
+        logger.info(this.payload);
+        if (job) {
+            logger.info(job.name, job.id, job.data);
+        }
     };
 
     failed = (job?: Job) => {
