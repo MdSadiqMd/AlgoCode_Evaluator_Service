@@ -3,8 +3,8 @@ import express, { Express } from "express";
 
 import serverConfig from "./config/server.config";
 import apiRouter from "./routes";
-import sampleQueueProducer from "./producers/sampleQueue.producer";
-import SampleWorker from "./workers/sample.worker";
+/* import sampleQueueProducer from "./producers/sampleQueue.producer";
+import SampleWorker from "./workers/sample.worker"; */
 import serverAdapter from "./config/bullBoard.config";
 import logger from "./config/logger.config";
 
@@ -19,7 +19,7 @@ app.use(serverConfig.BULLBOARDPATH, serverAdapter.getRouter());
 app.listen(serverConfig.PORT, () => {
     logger.info(`Server started at ${JSON.stringify(serverConfig.PORT)}`);
 
-    SampleWorker('SampleQueue');
+    /* SampleWorker('SampleQueue');
     sampleQueueProducer('SampleJob', {
         name: 'Sadiq',
         company: 'UHI',
@@ -29,5 +29,5 @@ app.listen(serverConfig.PORT, () => {
         name: 'Sadiq1',
         company: 'UHI',
         location: 'Remote'
-    }, 1);
+    }, 1); */
 });

@@ -21,7 +21,8 @@
     "express": "^4.19.2",
     "http-status-codes": "^2.3.0",
     "ioredis": "^5.4.1",
-    "winston": "^3.13.0"
+    "winston": "^3.13.0",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
