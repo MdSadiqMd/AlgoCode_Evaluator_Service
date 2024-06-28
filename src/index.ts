@@ -5,6 +5,7 @@ import serverConfig from "./config/server.config";
 import apiRouter from "./routes";
 import sampleQueueProducer from "./producers/sampleQueue.producer";
 import SampleWorker from "./workers/sample.worker";
+import logger from "./config/logger.config";
 
 const app: Express = express();
 app.use(bodyParser.json());
@@ -14,8 +15,9 @@ app.use(bodyParser.text());
 app.use('/api', apiRouter);
 
 app.listen(serverConfig.PORT, () => {
-    console.log(`Server started at ${serverConfig.PORT}`);
-    SampleWorker('SampleJob');
+    logger.info(`Server started at ${JSON.stringify(serverConfig.PORT)}`);
+
+    SampleWorker('SampleQueue');
     sampleQueueProducer('SampleJob', {
         name: 'Sadiq',
         company: 'UHI',

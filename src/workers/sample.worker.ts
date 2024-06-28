@@ -8,10 +8,10 @@ export default function SampleWorker(queueName: string) {
     new Worker(
         queueName,
         async (job: Job) => {
-            if (job.name == 'SampleJob') {
-                logger.info('job kicking in ', job);
+            logger.info(`Processing job: ${job.name} - ID: ${job.id} - Data: ${JSON.stringify(job.data)}`);
+            if (job.name === 'SampleJob') {
                 const sampleJobInstance = new sampleJob(job.data);
-                sampleJobInstance.handle(job);
+                await sampleJobInstance.handle(job);
                 return true;
             }
         },

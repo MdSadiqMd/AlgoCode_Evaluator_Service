@@ -3,5 +3,5 @@ import sampleQueue from '../queues/sample.queue';
 
 export default async function (name: string, payload: Record<string, unknown>, priority: number) {
     await sampleQueue.add(name, payload, { priority });
-    logger.info("Successfully added a new job", name, payload);
+    logger.info(`Successfully added a new job: Name: ${name} - Payload: ${JSON.stringify(payload)} - Priority: ${priority}`);
 }
