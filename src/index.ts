@@ -5,6 +5,7 @@ import serverConfig from "./config/server.config";
 import apiRouter from "./routes";
 import sampleQueueProducer from "./producers/sampleQueue.producer";
 import SampleWorker from "./workers/sample.worker";
+import serverAdapter from "./config/bullBoard.config";
 import logger from "./config/logger.config";
 
 const app: Express = express();
@@ -13,6 +14,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.text());
 
 app.use('/api', apiRouter);
+app.use(serverConfig.BULLBOARDPATH, serverAdapter.getRouter());
 
 app.listen(serverConfig.PORT, () => {
     logger.info(`Server started at ${JSON.stringify(serverConfig.PORT)}`);

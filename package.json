@@ -12,6 +12,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@bull-board/api": "^5.20.5",
+    "@bull-board/express": "^5.20.5",
+    "@bull-board/ui": "^5.20.5",
     "@types/ioredis": "^5.0.0",
     "bullmq": "^5.8.2",
     "dotenv": "^16.4.5",
