@@ -21,8 +21,10 @@ app.listen(serverConfig.PORT, () => {
     logger.info(`Server started at ${JSON.stringify(serverConfig.PORT)}`);
 
     SampleWorker('SampleQueue');
-    const code = `print("Hello World")`;
-    runPython(code);
+    const code = `print(input())`;
+    const testCase = `100
+    200`;
+    runPython(code, testCase);
     /* sampleQueueProducer('SampleJob', {
         name: 'Sadiq',
         company: 'UHI',
