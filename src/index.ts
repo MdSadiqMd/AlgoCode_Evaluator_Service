@@ -8,7 +8,8 @@ import SampleWorker from "./workers/sample.worker";
 import serverAdapter from "./config/bullBoard.config";
 import logger from "./config/logger.config";
 /* import runPython from "./containers/runPython.container"; */
-import runJava from "./containers/runJava.container";
+/* import runJava from "./containers/runJava.container"; */
+/* import runCpp from "./containers/runCpp.container"; */
 
 const app: Express = express();
 app.use(bodyParser.json());
@@ -22,11 +23,13 @@ app.listen(serverConfig.PORT, () => {
     logger.info(`Server started at ${JSON.stringify(serverConfig.PORT)}`);
 
     SampleWorker('SampleQueue');
+
     /* const code = `print(input())`;
     const testCase = `100
     200`;
     runPython(code, testCase); */
-    const code = `
+
+    /* const code = `
     import java.util.*;
     public class Main{
         public static void main(String[] args){
@@ -38,9 +41,41 @@ app.listen(serverConfig.PORT, () => {
         }
     }
     `;
-    const testCase = `10
+    const testCase = `10`;
+    runJava(code, testCase); */
+
+    /* const userCode = `
+    class Solution {
+        public:
+            vector<int> permute() {
+            vector<int> v;
+            v.push_back(10);
+            return v;
+        }
+    };
     `;
-    runJava(code, testCase);
+
+    const code = `
+    #include<iostream>
+    #include<vector>
+    #include<stdio.h>
+    using namespace std;
+
+    ${userCode}
+
+    int main() {
+        Solution s;
+        vector<int> result = s.permute();
+        for(int x : result) {
+            cout << x << " ";
+        }
+        cout << endl;
+        return 0;
+    }
+    `;
+    const testCase = `10`;
+    runCpp(code, testCase); */
+
     /* sampleQueueProducer('SampleJob', {
         name: 'Sadiq',
         company: 'UHI',
