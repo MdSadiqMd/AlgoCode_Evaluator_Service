@@ -7,8 +7,11 @@ import apiRouter from "./routes";
 import SampleWorker from "./workers/sample.worker";
 import serverAdapter from "./config/bullBoard.config";
 import logger from "./config/logger.config";
+import SubmissionWorker from "./workers/submission.worker";
+import { submission_queue } from "./utils/constants.utils";
+import submissionQueueProducer from "./producers/submissionQueue.producer";
 /* import runPython from "./containers/runPython.container"; */
-/* import runJava from "./containers/runJava.container"; */
+import runJava from "./containers/runJava.container";
 /* import runCpp from "./containers/runCpp.container"; */
 
 const app: Express = express();
@@ -23,13 +26,15 @@ app.listen(serverConfig.PORT, () => {
     logger.info(`Server started at ${JSON.stringify(serverConfig.PORT)}`);
 
     SampleWorker('SampleQueue');
+    SubmissionWorker(submission_queue);
 
     /* const code = `print(input())`;
     const testCase = `100
     200`;
     runPython(code, testCase); */
 
-    /* const code = `
+
+    const code = `
     import java.util.*;
     public class Main{
         public static void main(String[] args){
@@ -42,8 +47,16 @@ app.listen(serverConfig.PORT, () => {
     }
     `;
     const testCase = `10`;
-    runJava(code, testCase); */
+    runJava(code, testCase);
+    submissionQueueProducer({
+        '1234': {
+            language: 'Java',
+            testCase,
+            code
+        }
+    });
 
+    
     /* const userCode = `
     class Solution {
         public:
@@ -54,15 +67,12 @@ app.listen(serverConfig.PORT, () => {
         }
     };
     `;
-
     const code = `
     #include<iostream>
     #include<vector>
     #include<stdio.h>
     using namespace std;
-
     ${userCode}
-
     int main() {
         Solution s;
         vector<int> result = s.permute();
@@ -75,6 +85,7 @@ app.listen(serverConfig.PORT, () => {
     `;
     const testCase = `10`;
     runCpp(code, testCase); */
+
 
     /* sampleQueueProducer('SampleJob', {
         name: 'Sadiq',

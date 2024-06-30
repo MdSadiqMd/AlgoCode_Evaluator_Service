@@ -34,19 +34,19 @@ async function runJava(code: string, inputTestCase: string) {
             rawLogBuffer.push(chunk);
         });
 
-        await new Promise((res) => {
+        const response = await new Promise((res) => {
             loggerStream.on('end', () => {
                 logger.info('Log stream ended');
                 console.log(rawLogBuffer);
                 const completeBuffer = Buffer.concat(rawLogBuffer);
                 const decodedStream = decodeDockerStream(completeBuffer);
-                logger.info(`stdout: ${decodedStream.stdout}`);
-                logger.error(`stderr: ${decodedStream.stderr}`);
+                logger.info(`${JSON.stringify(decodedStream)}`);
                 res(decodedStream);
             });
         });
 
         await javaContainer.remove();
+        return response;
     } catch (error) {
         logger.error(`Error in Running Java Container: ${error}`);
     }
