@@ -2,27 +2,26 @@
 
 import { TestCases } from '../types/testCases.types'; */
 import createContainer from './factory.container';
-import { PYTHON_IMAGE } from '../utils/constants.utils';
+import { JAVA_IMAGE } from '../utils/constants.utils';
 import logger from '../config/logger.config';
 import decodeDockerStream from '../utils/dockerHelper.utils';
 
-async function runPython(code: string, inputTestCase: string) {
+async function runJava(code: string, inputTestCase: string) {
     try {
         const rawLogBuffer: Buffer[] = [];
-        logger.info(`Initialising Python Docker Container`);
-        // const pythonContainer = await createContainer(PYTHON_IMAGE, ['python3', '-c', code, 'stty -echo']);
-        const runCommand = `echo '${code.replace(/'/g, `'\\"`)}' > test.py && echo '${inputTestCase.replace(/'/g, `'\\"`)}' | python3 test.py`;
+        logger.info(`Initialising Java Docker Container`);
+        const runCommand = `echo '${code.replace(/'/g, `'\\"`)}' > Main.java && javac Main.java && echo '${inputTestCase.replace(/'/g, `'\\"`)}' | java Main`;
         logger.info(`${runCommand}`);
-        const pythonContainer = await createContainer(PYTHON_IMAGE, [
+        const javaContainer = await createContainer(JAVA_IMAGE, [
             '/bin/sh',
             '-c',
             runCommand
         ]);
-        logger.info(`Created Python Docker Container`);
-        await pythonContainer.start();
-        logger.info(`Started Python Docker Container`);
+        logger.info(`Created Java Docker Container`);
+        await javaContainer.start();
+        logger.info(`Started Java Docker Container`);
 
-        const loggerStream = await pythonContainer.logs({
+        const loggerStream = await javaContainer.logs({
             stdout: true,
             stderr: true,
             timestamps: false,
@@ -45,10 +44,10 @@ async function runPython(code: string, inputTestCase: string) {
             });
         });
 
-        await pythonContainer.remove();
+        await javaContainer.remove();
     } catch (error) {
-        logger.error(`Error in Running Python Container: ${error}`);
+        logger.error(`Error in Running Java Container: ${error}`);
     }
 }
 
-export default runPython;
+export default runJava;

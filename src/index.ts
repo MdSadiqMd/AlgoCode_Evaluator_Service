@@ -7,7 +7,8 @@ import apiRouter from "./routes";
 import SampleWorker from "./workers/sample.worker";
 import serverAdapter from "./config/bullBoard.config";
 import logger from "./config/logger.config";
-import runPython from "./containers/runPython.container";
+/* import runPython from "./containers/runPython.container"; */
+import runJava from "./containers/runJava.container";
 
 const app: Express = express();
 app.use(bodyParser.json());
@@ -21,10 +22,25 @@ app.listen(serverConfig.PORT, () => {
     logger.info(`Server started at ${JSON.stringify(serverConfig.PORT)}`);
 
     SampleWorker('SampleQueue');
-    const code = `print(input())`;
+    /* const code = `print(input())`;
     const testCase = `100
     200`;
-    runPython(code, testCase);
+    runPython(code, testCase); */
+    const code = `
+    import java.util.*;
+    public class Main{
+        public static void main(String[] args){
+            Scanner sc=new Scanner(System.in);
+            int input=sc.nextInt();
+            for(int i=0;i<input;i++){
+                System.out.println(i);
+            }
+        }
+    }
+    `;
+    const testCase = `10
+    `;
+    runJava(code, testCase);
     /* sampleQueueProducer('SampleJob', {
         name: 'Sadiq',
         company: 'UHI',
