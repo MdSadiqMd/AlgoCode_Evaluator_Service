@@ -5,11 +5,13 @@ import createContainer from './factory.container';
 import { CPP_IMAGE } from '../utils/constants.utils';
 import logger from '../config/logger.config';
 import decodeDockerStream from '../utils/dockerHelper.utils';
+import pullImage from '../utils/pullImage.utils';
 
 async function runCpp(code: string, inputTestCase: string) {
     try {
         const rawLogBuffer: Buffer[] = [];
         logger.info(`Initialising Cpp Docker Container`);
+        await pullImage(CPP_IMAGE);
         const runCommand = `echo '${code.replace(/'/g, `'\\"`)}' > main.cpp && g++ main.cpp -o main && echo '${inputTestCase.replace(/'/g, `'\\"`)}' | ./main`;
         logger.info(`${runCommand}`);
         const cppContainer = await createContainer(CPP_IMAGE, [

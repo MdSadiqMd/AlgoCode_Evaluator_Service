@@ -5,12 +5,14 @@ import createContainer from './factory.container';
 import { PYTHON_IMAGE } from '../utils/constants.utils';
 import logger from '../config/logger.config';
 import decodeDockerStream from '../utils/dockerHelper.utils';
+import pullImage from '../utils/pullImage.utils';
 
 async function runPython(code: string, inputTestCase: string) {
     try {
         const rawLogBuffer: Buffer[] = [];
         logger.info(`Initialising Python Docker Container`);
         // const pythonContainer = await createContainer(PYTHON_IMAGE, ['python3', '-c', code, 'stty -echo']);
+        await pullImage(PYTHON_IMAGE);
         const runCommand = `echo '${code.replace(/'/g, `'\\"`)}' > test.py && echo '${inputTestCase.replace(/'/g, `'\\"`)}' | python3 test.py`;
         logger.info(`${runCommand}`);
         const pythonContainer = await createContainer(PYTHON_IMAGE, [
@@ -39,8 +41,8 @@ async function runPython(code: string, inputTestCase: string) {
                 console.log(rawLogBuffer);
                 const completeBuffer = Buffer.concat(rawLogBuffer);
                 const decodedStream = decodeDockerStream(completeBuffer);
-                logger.info(`${decodedStream.stdout}`);
-                logger.info(`${decodedStream.stderr}`);
+                logger.info(`stdout: ${decodedStream.stdout}`);
+                logger.error(`stderr: ${decodedStream.stderr}`);
                 res(decodedStream);
             });
         });
