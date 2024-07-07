@@ -14,6 +14,7 @@ class SubmissionJob implements IJob {
 
     handle = (job?: Job) => {
         logger.info(`Job Handler Initialized - Payload: ${JSON.stringify(this.payload)}`);
+        // Update it 
         if (job) {
             logger.info(`Job Handling - payload: ${JSON.stringify(this.payload)}`);
         }

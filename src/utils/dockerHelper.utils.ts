@@ -1,7 +1,8 @@
 import { DockerStreamOutput } from "../types";
 import { DOCKER_STREAM_HEADER_SIZE } from "./constants.utils";
+import logger from "../config/logger.config";
 
-function decodeDockerStream(buffer: Buffer): DockerStreamOutput {
+export function decodeDockerStream(buffer: Buffer): DockerStreamOutput {
     let offset = 0; // This variable keeps track of the current position in the buffer while parsing
     const output: DockerStreamOutput = { stdout: '', stderr: '' }; // The output that will store the accumulated stdout and stderr output as strings
 
@@ -20,4 +21,19 @@ function decodeDockerStream(buffer: Buffer): DockerStreamOutput {
     return output;
 }
 
-export default decodeDockerStream;
+export function fetchDecodedStream(loggerStream: NodeJS.ReadableStream, rawLogBuffer: Buffer[]): Promise<string> {
+    return new Promise((res, rej) => {
+        loggerStream.on('end', () => {
+            logger.info('Log stream ended');
+            console.log(rawLogBuffer);
+            const completeBuffer = Buffer.concat(rawLogBuffer);
+            const decodedStream = decodeDockerStream(completeBuffer);
+            logger.info(`${JSON.stringify(decodedStream)}`);
+            if (decodedStream.stderr) {
+                rej(decodedStream.stderr);
+            } else {
+                res(decodedStream.stdout);
+            }
+        });
+    });
+}
