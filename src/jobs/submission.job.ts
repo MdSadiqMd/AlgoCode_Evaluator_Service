@@ -20,10 +20,11 @@ class SubmissionJob implements IJob {
             const key = Object.keys(this.payload)[0];
             const language = this.payload[key].language;
             const code = this.payload[key].code;
-            const inputTestCase = this.payload[key].testCase;
+            const inputTestCase = this.payload[key].inputCase;
+            const outputTestCase = this.payload[key].outputCase;
             const strategy = createExecutor(language);
             if (strategy !== null) {
-                const response = await strategy.execute(code, inputTestCase);
+                const response = await strategy.execute(code, inputTestCase, outputTestCase);
                 if (response.status === 'COMPLETED') {
                     logger.info(`code executed Succesfully - ${response}`);
                 } else {

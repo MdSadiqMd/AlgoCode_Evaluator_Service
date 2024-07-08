@@ -4,11 +4,11 @@ import express, { Express } from "express";
 import serverConfig from "./config/server.config";
 import apiRouter from "./routes";
 /* import sampleQueueProducer from "./producers/sampleQueue.producer"; */
-/* import SampleWorker from "./workers/sample.worker"; */
+import SampleWorker from "./workers/sample.worker";
 import serverAdapter from "./config/bullBoard.config";
 import logger from "./config/logger.config";
-/* import SubmissionWorker from "./workers/submission.worker";
-import { submission_queue } from "./utils/constants.utils"; */
+import SubmissionWorker from "./workers/submission.worker";
+import { submission_queue } from "./utils/constants.utils";
 /* import submissionQueueProducer from "./producers/submissionQueue.producer"; */
 
 const app: Express = express();
@@ -22,8 +22,8 @@ app.use(serverConfig.BULLBOARDPATH, serverAdapter.getRouter());
 app.listen(serverConfig.PORT, () => {
     logger.info(`Server started at ${JSON.stringify(serverConfig.PORT)}`);
 
-    /* SampleWorker('SampleQueue');
-    SubmissionWorker(submission_queue); */
+    SampleWorker('SampleQueue');
+    SubmissionWorker(submission_queue);
 
     /* const code = `print(input())`;
     const testCase = `100
@@ -53,7 +53,7 @@ app.listen(serverConfig.PORT, () => {
         }
     }); */
 
-    
+
     /* const userCode = `
     class Solution {
         public:
