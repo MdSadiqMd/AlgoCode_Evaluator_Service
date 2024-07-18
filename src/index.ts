@@ -8,8 +8,11 @@ import SampleWorker from "./workers/sample.worker";
 import serverAdapter from "./config/bullBoard.config";
 import logger from "./config/logger.config";
 import SubmissionWorker from "./workers/submission.worker";
-import { submission_queue } from "./utils/constants.utils";
-/* import submissionQueueProducer from "./producers/submissionQueue.producer"; */
+import { evaluation_queue, submission_queue } from "./utils/constants.utils";
+import submissionQueueProducer from "./producers/submissionQueue.producer";
+import JavaExecutor from './containers/JavaExecutor.container';
+import evaluationQueueProducer from "./producers/evaluationQueue.producer";
+import EvaluationWorker from "./workers/evaluation.worker";
 
 const app: Express = express();
 app.use(bodyParser.json());
@@ -19,11 +22,12 @@ app.use(bodyParser.text());
 app.use('/api', apiRouter);
 app.use(serverConfig.BULLBOARDPATH, serverAdapter.getRouter());
 
-app.listen(serverConfig.PORT, () => {
+app.listen(serverConfig.PORT, async () => {
     logger.info(`Server started at ${JSON.stringify(serverConfig.PORT)}`);
 
     SampleWorker('SampleQueue');
     SubmissionWorker(submission_queue);
+    EvaluationWorker(evaluation_queue);
 
     /* const code = `print(input())`;
     const testCase = `100
@@ -31,7 +35,7 @@ app.listen(serverConfig.PORT, () => {
     runPython(code, testCase); */
 
 
-    /* const code = `
+    const code = `
     import java.util.*;
     public class Main{
         public static void main(String[] args){
@@ -44,16 +48,16 @@ app.listen(serverConfig.PORT, () => {
     }
     `;
     const testCase = `10`;
-    runJava(code, testCase);
+    const javaExecutor = new JavaExecutor();
+    const { output, status } = await javaExecutor.execute(code, testCase);
+    logger.info(`The response: ${JSON.stringify(output)}`);
     submissionQueueProducer({
-        '1234': {
-            language: 'Java',
-            testCase,
-            code
-        }
-    }); */
-
-
+        '1234': output
+    });
+    logger.info(`Producer response :${JSON.stringify(output)}`);
+    if (status) {
+        evaluationQueueProducer({ '1234': { output, status } });
+    }
     /* const userCode = `
     class Solution {
         public:
