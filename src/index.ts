@@ -52,11 +52,11 @@ app.listen(serverConfig.PORT, async () => {
     const { output, status } = await javaExecutor.execute(code, testCase);
     logger.info(`The response: ${JSON.stringify(output)}`);
     submissionQueueProducer({
-        '1234': output
+        'userId': output
     });
     logger.info(`Producer response :${JSON.stringify(output)}`);
     if (status) {
-        evaluationQueueProducer({ '1234': { output, status } });
+        evaluationQueueProducer({ 'userId': { output, status } });
     }
     /* const userCode = `
     class Solution {
