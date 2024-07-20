@@ -8,9 +8,6 @@ import serverAdapter from "./config/bullBoard.config";
 import logger from "./config/logger.config";
 import SubmissionWorker from "./workers/submission.worker";
 import { submission_queue } from "./utils/constants.utils";
-import submissionQueueProducer from "./producers/submissionQueue.producer";
-import JavaExecutor from './containers/JavaExecutor.container';
-import evaluationQueueProducer from "./producers/evaluationQueue.producer";
 
 const app: Express = express();
 app.use(bodyParser.json());
@@ -32,7 +29,7 @@ app.listen(serverConfig.PORT, async () => {
     runPython(code, testCase); */
 
 
-    const code = `
+    /* const code = `
     import java.util.*;
     public class Main{
         public static void main(String[] args){
@@ -53,7 +50,9 @@ app.listen(serverConfig.PORT, async () => {
     logger.info(`Producer response :${JSON.stringify(output)}`);
     if (status) {
         evaluationQueueProducer({ 'userId': { output, status } });
-    }
+    } */
+
+
     /* const userCode = `
     class Solution {
         public:
