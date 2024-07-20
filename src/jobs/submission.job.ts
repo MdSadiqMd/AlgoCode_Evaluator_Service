@@ -25,7 +25,7 @@ class SubmissionJob implements IJob {
             const strategy = createExecutor(language);
             if (strategy !== null) {
                 const response = await strategy.execute(code, inputTestCase, outputTestCase);
-                if (response.status === 'COMPLETED') {
+                if (response.status === 'SUCCESS') {
                     logger.info(`code executed Succesfully - ${response}`);
                 } else {
                     logger.error(`Error in Executing Code - ${response}`);

@@ -9,7 +9,7 @@ import pullImage from '../utils/pullImage.utils';
 import codeExecutorStrategy, { ExecutionResponse } from './codeExecutorStrategy.container';
 
 class PythonExecutor implements codeExecutorStrategy {
-    async execute(code: string, inputTestCase: string): Promise<ExecutionResponse> {
+    async execute(code: string, inputTestCase: string, outputCase: string): Promise<ExecutionResponse> {
         try {
             const rawLogBuffer: Buffer[] = [];
             logger.info(`Initialising Python Docker Container`);
@@ -39,10 +39,17 @@ class PythonExecutor implements codeExecutorStrategy {
 
             try {
                 const response: string = await fetchDecodedStream(loggerStream, rawLogBuffer);
-                return { output: response, status: 'COMPLETED' };
+                if (response.trim() === outputCase.trim()) {
+                    return { output: response, status: "SUCCESS" };
+                } else {
+                    return { output: response, status: "WA" };
+                }
             } catch (error: any) {
                 logger.error(`Error in Judging Code: ${error}`);
-                return { output: error.toString(), status: 'FAILED' };
+                if (error === "TLE") {
+                    await pythonContainer.kill();
+                }
+                return { output: error as string, status: "ERROR" };
             } finally {
                 await pythonContainer.remove();
             }

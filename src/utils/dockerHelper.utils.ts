@@ -23,9 +23,13 @@ export function decodeDockerStream(buffer: Buffer): DockerStreamOutput {
 
 export function fetchDecodedStream(loggerStream: NodeJS.ReadableStream, rawLogBuffer: Buffer[]): Promise<string> {
     return new Promise((res, rej) => {
+        const timeout = setTimeout(() => {
+            console.log("Timeout called");
+            rej("TLE");
+        }, 2000);
         loggerStream.on('end', () => {
-            logger.info('Log stream ended');
-            console.log(rawLogBuffer);
+            clearTimeout(timeout);
+            logger.info(`Log stream ended with buffer: ${JSON.stringify(rawLogBuffer)}`);
             const completeBuffer = Buffer.concat(rawLogBuffer);
             const decodedStream = decodeDockerStream(completeBuffer);
             logger.info(`${JSON.stringify(decodedStream)}`);

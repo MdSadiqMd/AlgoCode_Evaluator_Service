@@ -3,16 +3,14 @@ import express, { Express } from "express";
 
 import serverConfig from "./config/server.config";
 import apiRouter from "./routes";
-/* import sampleQueueProducer from "./producers/sampleQueue.producer"; */
 import SampleWorker from "./workers/sample.worker";
 import serverAdapter from "./config/bullBoard.config";
 import logger from "./config/logger.config";
 import SubmissionWorker from "./workers/submission.worker";
-import { evaluation_queue, submission_queue } from "./utils/constants.utils";
+import { submission_queue } from "./utils/constants.utils";
 import submissionQueueProducer from "./producers/submissionQueue.producer";
 import JavaExecutor from './containers/JavaExecutor.container';
 import evaluationQueueProducer from "./producers/evaluationQueue.producer";
-import EvaluationWorker from "./workers/evaluation.worker";
 
 const app: Express = express();
 app.use(bodyParser.json());
@@ -27,7 +25,6 @@ app.listen(serverConfig.PORT, async () => {
 
     SampleWorker('SampleQueue');
     SubmissionWorker(submission_queue);
-    EvaluationWorker(evaluation_queue);
 
     /* const code = `print(input())`;
     const testCase = `100
@@ -41,15 +38,14 @@ app.listen(serverConfig.PORT, async () => {
         public static void main(String[] args){
             Scanner sc=new Scanner(System.in);
             int input=sc.nextInt();
-            for(int i=0;i<input;i++){
-                System.out.println(i);
-            }
+                System.out.println(input);
         }
     }
     `;
     const testCase = `10`;
+    const outputCase = `10`;
     const javaExecutor = new JavaExecutor();
-    const { output, status } = await javaExecutor.execute(code, testCase);
+    const { output, status } = await javaExecutor.execute(code, testCase, outputCase);
     logger.info(`The response: ${JSON.stringify(output)}`);
     submissionQueueProducer({
         'userId': output
