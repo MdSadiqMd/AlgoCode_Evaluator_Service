@@ -54,7 +54,7 @@ class PythonExecutor implements codeExecutorStrategy {
                 await pythonContainer.remove();
             }
         } catch (error: any) {
-            logger.error(`Error in Running Python Container: ${error}`);
+            logger.error(`Error in Running Python Container: ${JSON.stringify(error)}`);
             return { output: error.toString(), status: 'FAILED' };
         }
     }

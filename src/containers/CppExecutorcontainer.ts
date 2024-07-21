@@ -54,7 +54,7 @@ class CppExecutor implements codeExecutorStrategy {
                 await cppContainer.remove();
             }
         } catch (error: any) {
-            logger.error(`Error in Running Cpp Container: ${error}`);
+            logger.error(`Error in Running Cpp Container: ${JSON.stringify(error)}`);
             return { output: error.toString(), status: 'FAILED' };
         }
     }

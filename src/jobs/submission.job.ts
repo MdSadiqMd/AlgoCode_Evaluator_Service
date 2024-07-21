@@ -3,6 +3,7 @@ import { Job } from "bullmq";
 import { IJob, SubmissionPayload } from "../types";
 import logger from "../config/logger.config";
 import createExecutor from "../utils/ExecutorFactory.utils";
+import evaluationQueueProducer from "../producers/evaluationQueue.producer";
 
 class SubmissionJob implements IJob {
     name: string;
@@ -25,10 +26,15 @@ class SubmissionJob implements IJob {
             const strategy = createExecutor(language);
             if (strategy !== null) {
                 const response = await strategy.execute(code, inputTestCase, outputTestCase);
+                await evaluationQueueProducer({
+                    response,
+                    userId: this.payload[key].userId,
+                    submissionId: this.payload[key].submissionId
+                });
                 if (response.status === 'SUCCESS') {
-                    logger.info(`code executed Succesfully - ${response}`);
+                    logger.info(`code executed Succesfully - ${JSON.stringify(response)}`);
                 } else {
-                    logger.error(`Error in Executing Code - ${response}`);
+                    logger.error(`Error in Executing Code - ${JSON.stringify(response)}`);
                 }
             }
         }

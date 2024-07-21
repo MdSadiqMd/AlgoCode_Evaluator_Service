@@ -53,7 +53,7 @@ class JavaExecutor implements codeExecutorStrategy {
                 await javaContainer.remove();
             }
         } catch (error: any) {
-            logger.error(`Error in Running Java Container: ${error}`);
+            logger.error(`Error in Running Java Container: ${JSON.stringify(error)}`);
             return { output: error.toString(), status: 'FAILED' };
         }
     }
