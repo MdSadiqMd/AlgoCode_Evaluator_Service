@@ -26,7 +26,7 @@ export function fetchDecodedStream(loggerStream: NodeJS.ReadableStream, rawLogBu
         const timeout = setTimeout(() => {
             console.log("Timeout called");
             rej("TLE");
-        }, 5000);
+        }, 10000);
         loggerStream.on('end', () => {
             clearTimeout(timeout);
             logger.info(`Log stream ended with buffer: ${JSON.stringify(rawLogBuffer)}`);
