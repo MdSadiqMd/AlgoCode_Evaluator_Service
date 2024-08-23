@@ -1,6 +1,3 @@
-/* import Docker from 'dockerode';
-
-import { TestCases } from '../types/testCases.types'; */
 import createContainer from './factory.container';
 import { JAVA_IMAGE } from '../utils/constants.utils';
 import logger from '../config/logger.config';
@@ -9,17 +6,36 @@ import pullImage from '../utils/pullImage.utils';
 import codeExecutorStrategy, { ExecutionResponse } from './codeExecutorStrategy.container';
 
 class JavaExecutor implements codeExecutorStrategy {
-    async execute(code: string, inputTestCase: string, outputCase: string): Promise<ExecutionResponse> {
+    async execute(code: string, inputTestCases: string[], outputTestCases: string[]): Promise<ExecutionResponse> {
+        const flattenedInputTestCases = inputTestCases.flat();
+        const flattenedOutputTestCases = outputTestCases.flat();
+        if (flattenedInputTestCases.length !== flattenedOutputTestCases.length) {
+            throw new Error("Mismatch between input and output test cases length");
+        }
+
+        for (let i = 0; i < flattenedInputTestCases.length; i++) {
+            const input = flattenedInputTestCases[i];
+            const output = flattenedOutputTestCases[i];
+            const result = await this.run(code, input, output);
+            if (result.status !== "SUCCESS") {
+                return result;
+            }
+        }
+        return await this.run(code, flattenedInputTestCases[0], flattenedOutputTestCases[0]);
+    }
+
+    async run(code: string, inputTestCase: string, outputTestCase: string): Promise<ExecutionResponse> {
         try {
             const rawLogBuffer: Buffer[] = [];
-            logger.info(`Initialising Java Docker Container`);
+            logger.info(`Initializing Java Docker Container`);
             await pullImage(JAVA_IMAGE);
             const runCommand = `echo '${code.replace(/'/g, `'\\"`)}' > Main.java && javac Main.java && echo '${inputTestCase.replace(/'/g, `'\\"`)}' | java Main`;
-            logger.info(`${runCommand}`);
+            logger.info(`Run Command: ${runCommand}`);
+
             const javaContainer = await createContainer(JAVA_IMAGE, [
                 '/bin/sh',
                 '-c',
-                runCommand
+                runCommand,
             ]);
             logger.info(`Created Java Docker Container`);
             await javaContainer.start();
@@ -38,7 +54,7 @@ class JavaExecutor implements codeExecutorStrategy {
 
             try {
                 const response: string = await fetchDecodedStream(loggerStream, rawLogBuffer);
-                if (response.trim() === outputCase.trim()) {
+                if (response.trim() === outputTestCase.trim()) {
                     return { output: response, status: "SUCCESS" };
                 } else {
                     return { output: response, status: "WA" };

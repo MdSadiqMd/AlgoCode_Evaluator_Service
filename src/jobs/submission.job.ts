@@ -19,10 +19,12 @@ class SubmissionJob implements IJob {
         if (job && this.payload) {
             logger.info(`Job Handling - payload: ${JSON.stringify(this.payload)}`);
             const key = Object.keys(this.payload)[0];
+            console.log("key" + key);
+            console.log(' payload' + JSON.stringify(this.payload));
             const language = this.payload[key].language;
             const code = this.payload[key].code;
-            const inputTestCase = this.payload[key].inputCase;
-            const outputTestCase = this.payload[key].outputCase;
+            const inputTestCase = [this.payload[key].inputCase];
+            const outputTestCase = [this.payload[key].outputCase];
             const strategy = createExecutor(language);
             if (strategy !== null) {
                 const response = await strategy.execute(code, inputTestCase, outputTestCase);

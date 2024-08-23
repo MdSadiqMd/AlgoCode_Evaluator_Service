@@ -1,6 +1,3 @@
-/* import Docker from 'dockerode';
-
-import { TestCases } from '../types/testCases.types'; */
 import createContainer from './factory.container';
 import { CPP_IMAGE } from '../utils/constants.utils';
 import logger from '../config/logger.config';
@@ -10,17 +7,36 @@ import codeExecutorStrategy, { ExecutionResponse } from './codeExecutorStrategy.
 
 
 class CppExecutor implements codeExecutorStrategy {
-    async execute(code: string, inputTestCase: string, outputCase: string): Promise<ExecutionResponse> {
+    async execute(code: string, inputTestCases: string[], outputTestCases: string[]): Promise<ExecutionResponse> {
+        const flattenedInputTestCases = inputTestCases.flat();
+        const flattenedOutputTestCases = outputTestCases.flat();
+        if (flattenedInputTestCases.length !== flattenedOutputTestCases.length) {
+            throw new Error("Mismatch between input and output test cases length");
+        }
+
+        for (let i = 0; i < flattenedInputTestCases.length; i++) {
+            const input = flattenedInputTestCases[i];
+            const output = flattenedOutputTestCases[i];
+            const result = await this.run(code, input, output);
+            if (result.status !== "SUCCESS") {
+                return result;
+            }
+        }
+        return await this.run(code, flattenedInputTestCases[0], flattenedOutputTestCases[0]);
+    }
+
+    async run(code: string, inputTestCase: string, outputTestCase: string): Promise<ExecutionResponse> {
         try {
             const rawLogBuffer: Buffer[] = [];
             logger.info(`Initialising Cpp Docker Container`);
             await pullImage(CPP_IMAGE);
             const runCommand = `echo '${code.replace(/'/g, `'\\"`)}' > main.cpp && g++ main.cpp -o main && echo '${inputTestCase.replace(/'/g, `'\\"`)}' | ./main`;
-            logger.info(`${runCommand}`);
+            logger.info(`Run Command: ${runCommand}`);
+
             const cppContainer = await createContainer(CPP_IMAGE, [
                 '/bin/sh',
                 '-c',
-                runCommand
+                runCommand,
             ]);
             logger.info(`Created Cpp Docker Container`);
             await cppContainer.start();
@@ -39,7 +55,7 @@ class CppExecutor implements codeExecutorStrategy {
 
             try {
                 const response: string = await fetchDecodedStream(loggerStream, rawLogBuffer);
-                if (response.trim() === outputCase.trim()) {
+                if (response.trim() === outputTestCase.trim()) {
                     return { output: response, status: "SUCCESS" };
                 } else {
                     return { output: response, status: "WA" };
