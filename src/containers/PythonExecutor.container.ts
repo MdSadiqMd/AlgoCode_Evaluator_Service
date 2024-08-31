@@ -6,6 +6,8 @@ import pullImage from '../utils/pullImage.utils';
 import codeExecutorStrategy, { ExecutionResponse } from './codeExecutorStrategy.container';
 
 class PythonExecutor implements codeExecutorStrategy {
+    private cachedResult: ExecutionResponse | null = null;
+
     async execute(code: string, inputTestCases: string[], outputTestCases: string[]): Promise<ExecutionResponse> {
         const flattenedInputTestCases = inputTestCases.flat();
         const flattenedOutputTestCases = outputTestCases.flat();
@@ -13,15 +15,20 @@ class PythonExecutor implements codeExecutorStrategy {
             throw new Error("Mismatch between input and output test cases length");
         }
 
+        this.cachedResult = await this.run(code, flattenedInputTestCases[0], flattenedOutputTestCases[0]);
+        if (this.cachedResult.status !== "SUCCESS") {
+            return this.cachedResult;
+        }
         for (let i = 0; i < flattenedInputTestCases.length; i++) {
             const input = flattenedInputTestCases[i];
             const output = flattenedOutputTestCases[i];
             const result = await this.run(code, input, output);
             if (result.status !== "SUCCESS") {
+                this.cachedResult = null;
                 return result;
             }
         }
-        return await this.run(code, flattenedInputTestCases[0], flattenedOutputTestCases[0]);
+        return this.cachedResult;
     }
 
     async run(code: string, inputTestCase: string, outputTestCase: string): Promise<ExecutionResponse> {

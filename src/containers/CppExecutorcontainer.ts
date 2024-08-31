@@ -7,6 +7,8 @@ import codeExecutorStrategy, { ExecutionResponse } from './codeExecutorStrategy.
 
 
 class CppExecutor implements codeExecutorStrategy {
+    private cachedResult: ExecutionResponse | null = null;
+
     async execute(code: string, inputTestCases: string[], outputTestCases: string[]): Promise<ExecutionResponse> {
         const flattenedInputTestCases = inputTestCases.flat();
         const flattenedOutputTestCases = outputTestCases.flat();
@@ -14,15 +16,20 @@ class CppExecutor implements codeExecutorStrategy {
             throw new Error("Mismatch between input and output test cases length");
         }
 
-        for (let i = 0; i < flattenedInputTestCases.length; i++) {
+        this.cachedResult = await this.run(code, flattenedInputTestCases[0], flattenedOutputTestCases[0]);
+        if (this.cachedResult.status !== "SUCCESS") {
+            return this.cachedResult;
+        }
+        for (let i = 1; i < flattenedInputTestCases.length; i++) {
             const input = flattenedInputTestCases[i];
             const output = flattenedOutputTestCases[i];
             const result = await this.run(code, input, output);
             if (result.status !== "SUCCESS") {
+                this.cachedResult = null;
                 return result;
             }
         }
-        return await this.run(code, flattenedInputTestCases[0], flattenedOutputTestCases[0]);
+        return this.cachedResult;
     }
 
     async run(code: string, inputTestCase: string, outputTestCase: string): Promise<ExecutionResponse> {
